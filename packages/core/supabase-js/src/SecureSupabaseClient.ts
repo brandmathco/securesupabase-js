@@ -10,6 +10,9 @@ export type SecureSupabaseClientOptions = {
   }
 }
 
+type RealtimeChannelOptions = Parameters<SupabaseClient<any, any, any>['channel']>[1]
+type RealtimeChannel = Parameters<SupabaseClient<any, any, any>['removeChannel']>[0]
+
 export class SecureSupabaseClient {
   readonly edge: SecureEdgeInvoker
   readonly db: SecureDbProxyClient
@@ -27,6 +30,57 @@ export class SecureSupabaseClient {
       functionName: options.edge?.authProxyFunctionName ?? 'auth-proxy',
     })
   }
+
+  /**
+   * Access to raw Supabase Functions client for invoking non-proxy edge functions.
+   * (Deployment is handled by Supabase CLI / Management API, not runtime supabase-js.)
+   */
+  get functions() {
+    return this.supabase.functions
+  }
+
+  /**
+   * Access to raw Supabase Storage client.
+   */
+  get storage() {
+    return this.supabase.storage
+  }
+
+  /**
+   * Access to raw Realtime client.
+   */
+  get realtime() {
+    return this.supabase.realtime
+  }
+
+  /**
+   * Realtime convenience passthrough.
+   */
+  channel(name: string, opts: RealtimeChannelOptions = { config: {} }) {
+    return this.supabase.channel(name, opts)
+  }
+
+  /**
+   * Realtime convenience passthrough.
+   */
+  getChannels() {
+    return this.supabase.getChannels()
+  }
+
+  /**
+   * Realtime convenience passthrough.
+   */
+  removeChannel(channel: RealtimeChannel) {
+    return this.supabase.removeChannel(channel)
+  }
+
+  /**
+   * Realtime convenience passthrough.
+   */
+  removeAllChannels() {
+    return this.supabase.removeAllChannels()
+  }
+
 }
 
 export function createSecureSupabaseClient(

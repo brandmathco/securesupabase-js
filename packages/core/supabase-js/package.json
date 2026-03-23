@@ -25,6 +25,10 @@
   "types": "dist/index.d.cts",
   "exports": {
     ".": {
+      "react-native": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/react-native/index.mjs"
+      },
       "import": {
         "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"
@@ -91,7 +95,8 @@
     "@supabase/functions-js": "*",
     "@supabase/postgrest-js": "*",
     "@supabase/realtime-js": "*",
-    "@supabase/storage-js": "*"
+    "@supabase/storage-js": "*",
+    "esbuild": "^0.25.11"
   },
   "devDependencies": {
     "jsr": "^0.13.5",

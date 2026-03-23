@@ -25,6 +25,20 @@ export default defineConfig([
     hash: false,
     target: 'es2017',
   },
+  // React Native build - bundle @supabase/* to avoid Metro external resolution issues
+  {
+    entry: ['src/index.ts'],
+    format: ['esm'],
+    dts: false,
+    sourcemap: true,
+    clean: false,
+    outDir: 'dist/react-native',
+    noExternal: [/.*/],
+    fixedExtension: true,
+    hash: false,
+    target: 'es2017',
+    platform: 'browser',
+  },
   // IIFE build for CDN (jsdelivr/unpkg) - bundles EVERYTHING
   {
     entry: { supabase: 'src/index.ts' },

@@ -78,6 +78,25 @@ const { data, error } = await secure.db
 if (error) throw error
 ```
 
+You can also use non-proxy runtime clients from the same secure wrapper:
+
+```ts
+// Invoke other edge functions
+await secure.functions.invoke('health-check', { body: { ping: true } })
+
+// Storage APIs
+await secure.storage.from('avatars').upload('me.png', file)
+
+// Realtime APIs
+const channel = secure.channel('room:demo')
+```
+
+Important:
+
+- `secure.db` and `secure.auth` are the hardened proxy paths for business data/auth flows.
+- Runtime passthroughs exposed by the secure wrapper include `functions`, `storage`, and Realtime helpers (`channel`, `getChannels`, `removeChannel`, `removeAllChannels`).
+- Function **deployment** is not a runtime `supabase-js` method; use Supabase CLI (`supabase functions deploy ...`) or Management API in CI/CD.
+
 ### Edge Functions usage (Deno)
 
 Inside edge handlers, use `createClient` from this same package for direct DB access:
@@ -162,6 +181,14 @@ or:
 securesupabase init --functions-dir "/absolute/path/to/your-app/supabase/functions"
 ```
 
+Optional flags:
+
+```bash
+securesupabase init --functions-dir "/absolute/path/to/your-app/supabase/functions" --no-minify
+securesupabase init --link
+securesupabase init --no-link
+```
+
 From `packages/core/supabase-js`:
 
 ```bash
@@ -173,6 +200,42 @@ What it writes:
 
 - `supabase/functions/_shared/vendor/securesupabase/index.mjs`
 - `supabase/functions/_shared/securesupabase.ts`
+- `supabase/functions/_shared/{apiErrors,cors,e2ee,http,mod,rateLimit,security}.ts`
+- `supabase/functions/db-proxy/index.ts`
+- `supabase/functions/auth-proxy/index.ts`
+- `supabase/functions/e2ee-public-key/index.ts`
+- `supabase/migrations/202603210001_security_schema.sql`
+- `supabase/migrations/202603210002_rls_helpers.sql`
+- `supabase/secure-edge-templates/{rls-baseline-template,verify-rls}.sql`
+
+Notes:
+
+- Vendor SDK output is minified by default (uses `esbuild`).
+- Shared security scaffolding includes CORS allowlist, rate limiting, request validation, blocklists, and E2EE helpers.
+- `db-proxy` and `auth-proxy` support encrypted request/response envelopes and policy-aware rate limiting/blocklist checks.
+- `securesupabase init` now prompts to run `supabase link` so you can choose a Supabase project.
+- The link step only runs when an existing `config.toml` is found (it does not auto-run `supabase init`).
+- In non-interactive terminals the link step is skipped unless you pass `--link`.
+
+Deploy helpers:
+
+```bash
+securesupabase functions deploy db-proxy auth-proxy e2ee-public-key --project-dir "/absolute/path/to/your-app"
+```
+
+or deploy all standard secure-edge functions:
+
+```bash
+securesupabase functions deploy --all --project-dir "/absolute/path/to/your-app"
+```
+
+Supabase CLI passthrough (inherits all other Supabase CLI commands):
+
+```bash
+securesupabase supabase db push --project-dir "/absolute/path/to/your-app"
+securesupabase supabase functions list --project-dir "/absolute/path/to/your-app"
+securesupabase supabase migration list --supabase-dir "/absolute/path/to/your-app/supabase"
+```
 
 Then in your edge handlers use:
 

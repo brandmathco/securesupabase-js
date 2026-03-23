@@ -10,6 +10,7 @@ function parseArgs(argv) {
   const out = {
     functionsDir: '',
     sourceFile: '',
+    minify: true,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -22,6 +23,10 @@ function parseArgs(argv) {
     if (arg === '--source-file') {
       out.sourceFile = argv[i + 1] ?? '';
       i += 1;
+      continue;
+    }
+    if (arg === '--no-minify') {
+      out.minify = false;
     }
   }
   return out;
@@ -30,7 +35,7 @@ function parseArgs(argv) {
 function helpAndExit(message) {
   if (message) console.error(`Error: ${message}\n`);
   console.error(`Usage:
-  npm run sync:edge-functions -- --functions-dir "/absolute/path/to/supabase/functions"
+  npm run sync:edge-functions -- --functions-dir "/absolute/path/to/supabase/functions" [--no-minify]
 
 Optional:
   --source-file "/absolute/path/to/custom/index.mjs"
@@ -66,16 +71,25 @@ async function main() {
   const sourceFile = args.sourceFile
     ? path.resolve(args.sourceFile)
     : path.resolve(packageDir, 'dist/index.mjs');
+  const templatesDir = path.resolve(packageDir, 'templates', 'secure-edge');
 
   const functionsDir = path.resolve(args.functionsDir);
   await ensureFileExists(sourceFile, 'source file');
-  const out = await syncEdgeFunctions({ functionsDir, sourceFile });
+  const out = await syncEdgeFunctions({ functionsDir, sourceFile, minify: args.minify, templatesDir });
 
   console.log('Synced secure Supabase SDK for edge functions:');
   console.log(`  source: ${out.source}`);
   console.log(`  vendor: ${out.vendor}`);
   console.log(`  bridge: ${out.bridge}`);
   console.log(`  deno.json: ${out.denoJson}`);
+  console.log(`  minified: ${out.minified ? 'yes' : 'no'}`);
+  if (!out.minified && out.minifyReason) {
+    console.log(`  minify note: ${out.minifyReason}`);
+  }
+  console.log(`  secure edge scaffolded: ${out.scaffolded ? 'yes' : 'no'}`);
+  if (!out.scaffolded && out.scaffoldReason) {
+    console.log(`  scaffold note: ${out.scaffoldReason}`);
+  }
 }
 
 await main();
