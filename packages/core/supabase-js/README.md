@@ -47,6 +47,125 @@ import { createClient } from '@supabase/supabase-js'
 const supabase = createClient('https://xyzcompany.supabase.co', 'public-anon-key')
 ```
 
+### Secure integration (app clients)
+
+Use `createSecureClient` in web/mobile app code that calls your edge proxies (`db-proxy`, `auth-proxy`):
+
+```ts
+import { createSecureClient } from '@supabase/supabase-js'
+
+const secure = createSecureClient(
+  'https://xyzcompany.supabase.co',
+  'public-anon-key',
+  {},
+  {
+    edge: {
+      initialPublicKeyB64: process.env.NEXT_PUBLIC_E2EE_PUBLIC_KEY_B64,
+      allowPlainFallback: false,
+      // defaults:
+      // dbProxyFunctionName: 'db-proxy'
+      // authProxyFunctionName: 'auth-proxy'
+    },
+  }
+)
+
+const { data, error } = await secure.db
+  .from('profiles')
+  .select<{ id: string; email: string }>()
+  .eq('id', '...')
+  .maybeSingle()
+
+if (error) throw error
+```
+
+### Edge Functions usage (Deno)
+
+Inside edge handlers, use `createClient` from this same package for direct DB access:
+
+```ts
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+
+// Admin client (service role)
+const admin = createClient(supabaseUrl, serviceRoleKey)
+
+// User-scoped client (RLS applies)
+const userClient = createClient(supabaseUrl, anonKey, {
+  global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
+  auth: { persistSession: false, autoRefreshToken: false },
+})
+```
+
+Notes:
+
+- Deno is supported.
+- Keep private key only in edge secrets (`E2EE_RSA_PRIVATE_KEY_B64`).
+- `createSecureClient` is primarily for app/client-side proxy calls, not for DB access inside edge functions.
+
+Available classes/exports:
+
+- `SecureEdgeInvoker`
+- `SecureDbProxyClient`
+- `SecureAuthProxyClient`
+- `SecureSupabaseClient`
+- `createSecureSupabaseClient`
+- `createSecureClient`
+
+### Sync into `supabase/functions/_shared` (local integration)
+
+To make edge integration easy in any project, this package includes a CLI command that vendors your built SDK into a Supabase functions folder and writes a bridge file.
+
+Install globally once from your local fork/package path:
+
+```bash
+npm install -g "/absolute/path/to/securesupabase-js/packages/core/supabase-js"
+```
+
+If you publish your fork, replace with your own package name (example):
+
+```bash
+npm install -g @your-scope/securesupabase-js
+```
+
+Then from an app project root run:
+
+```bash
+securesupabase init
+```
+
+or:
+
+```bash
+securesupabase init --project-dir "/absolute/path/to/your-app"
+```
+
+or:
+
+```bash
+securesupabase init --functions-dir "/absolute/path/to/your-app/supabase/functions"
+```
+
+From `packages/core/supabase-js`:
+
+```bash
+npm run build
+npm run sync:edge-functions -- --functions-dir "/absolute/path/to/your-app/supabase/functions"
+```
+
+What it writes:
+
+- `supabase/functions/_shared/vendor/securesupabase/index.mjs`
+- `supabase/functions/_shared/securesupabase.ts`
+
+Then in your edge handlers use:
+
+```ts
+import { createClient } from '../_shared/securesupabase.ts'
+```
+
 ### UMD
 
 You can use plain `<script>`s to import supabase-js from CDNs, like:

@@ -25,6 +25,83 @@ export interface SupabaseAuthClientOptions extends GoTrueClientOptions {}
 
 export type Fetch = typeof fetch
 
+export type SecureEdgeInvokerOptions = {
+  publicKeyFunctionName?: string
+  allowPlainFallback?: boolean
+  initialPublicKeyB64?: string
+}
+
+export type DbProxyFilter = {
+  op:
+    | 'eq'
+    | 'neq'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'like'
+    | 'ilike'
+    | 'is'
+    | 'in'
+    | 'contains'
+    | 'containedBy'
+    | 'rangeGt'
+    | 'rangeGte'
+    | 'rangeLt'
+    | 'rangeLte'
+    | 'rangeAdjacent'
+    | 'overlaps'
+    | 'textSearch'
+    | 'match'
+    | 'not'
+    | 'or'
+    | 'filter'
+  column: string
+  value?: unknown
+  values?: unknown[]
+  config?: Record<string, unknown>
+  operator?: string
+}
+
+export type DbProxyTableRequest = {
+  kind: 'table'
+  schema?: string
+  table: string
+  action: 'select' | 'insert' | 'update' | 'delete' | 'upsert'
+  select?: string
+  filters?: DbProxyFilter[]
+  orderBy?: Array<{ column: string; ascending?: boolean; nullsFirst?: boolean; referencedTable?: string }>
+  limit?: number
+  range?: { from: number; to: number }
+  single?: 'single' | 'maybeSingle'
+  format?: 'json' | 'csv'
+  count?: 'exact' | 'planned' | 'estimated'
+  head?: boolean
+  values?: Record<string, unknown> | Record<string, unknown>[]
+  onConflict?: string
+}
+
+export type DbProxyRpcRequest = {
+  kind: 'rpc'
+  schema?: string
+  name: string
+  args?: Record<string, unknown>
+}
+
+export type DbProxyRequest = DbProxyTableRequest | DbProxyRpcRequest
+
+export type SecureDbResponse<T> = {
+  data: T | null
+  error: Error | null
+}
+
+export type SecureSupabaseClientOptions = {
+  edge?: SecureEdgeInvokerOptions & {
+    dbProxyFunctionName?: string
+    authProxyFunctionName?: string
+  }
+}
+
 export type SupabaseClientOptions<SchemaName> = {
   /**
    * The Postgres schema which your tables belong to. Must be on the list of exposed schemas in Supabase. Defaults to `public`.

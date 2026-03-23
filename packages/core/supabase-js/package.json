@@ -13,8 +13,13 @@
   "author": "Supabase",
   "files": [
     "dist",
-    "src"
+    "src",
+    "bin",
+    "scripts"
   ],
+  "bin": {
+    "securesupabase": "./bin/securesupabase.mjs"
+  },
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.cts",
@@ -51,6 +56,8 @@
   "scripts": {
     "build": "tsdown",
     "build:watch": "tsdown --watch",
+    "init:edge-functions": "node ./bin/securesupabase.mjs init",
+    "sync:edge-functions": "node ./scripts/sync-edge-functions.mjs",
     "test": "npm run test:types && npm run test:run",
     "test:all": "npm run test:types && npm run test:run && npm run test:integration && npm run test:integration:browser",
     "test:run": "jest --runInBand --detectOpenHandles",
