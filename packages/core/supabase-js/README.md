@@ -118,6 +118,20 @@ Available classes/exports:
 
 To make edge integration easy in any project, this package includes a CLI command that vendors your built SDK into a Supabase functions folder and writes a bridge file.
 
+If you are installing from a fork source checkout, set remotes first:
+
+```bash
+# From repo root
+git remote set-url origin "https://github.com/<your-org-or-user>/securesupabase-js.git"
+git remote add upstream "https://github.com/supabase/supabase-js.git" 2>/dev/null || true
+git remote -v
+```
+
+Expected pattern:
+
+- `origin` -> your fork (push here)
+- `upstream` -> source repo (fetch/rebase here)
+
 Install globally once from your local fork/package path:
 
 ```bash
