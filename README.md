@@ -6,6 +6,15 @@ This repository is **[BrandMatchCo](https://github.com/brandmathco)**’s extend
 
 Upstream remains the source of truth for general SDK behavior, versioning, and runtime support; use this README for **what this fork adds** and how to use it.
 
+## Fork, attribution, and disclaimer
+
+- **Upstream project:** This repository is a **fork and derivative** of the open-source **[supabase/supabase-js](https://github.com/supabase/supabase-js)** monorepo. That upstream project is licensed under the **MIT License**; this fork incorporates upstream code under those terms. Copyright notices and license text for upstream code are preserved in **[`LICENSE`](./LICENSE)** (and in file headers where upstream placed them).
+- **What BrandMatchCo added:** On top of upstream, this repo adds **BrandMatchCo–specific** behavior and tooling—primarily **proxy-first / Edge Function–oriented** client patterns (`createSecureClient`, secure DB/auth paths, optional E2EE-related flows), the **`securesupabase` CLI**, and **edge function / migration scaffolding** as described in the tables below and in [`packages/core/supabase-js/README.md`](./packages/core/supabase-js/README.md). Anything not explicitly described as an addition should be assumed to follow upstream behavior.
+- **Not official Supabase:** **Supabase, Inc.** and the Supabase open-source maintainers **do not maintain, endorse, or warrant** this fork unless they state otherwise. This is an independent community/company fork. For the official JavaScript client and releases, use **[supabase/supabase-js](https://github.com/supabase/supabase-js)** and the **`@supabase/*` packages published by Supabase** on npm.
+- **Trademarks:** **Supabase** and related names and logos are trademarks of their respective owners. References here are for **attribution and technical compatibility** (identifying which upstream project this derives from), not to imply affiliation or sponsorship.
+
+This section is standard open-source attribution; it does not replace reading the MIT `LICENSE` or your own counsel for your use case.
+
 ## What this fork adds
 
 | Capability | Purpose |
