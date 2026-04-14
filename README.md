@@ -45,10 +45,16 @@ Libraries match upstream; everything under **`packages/core/`** is the active SD
 
 ## Install and quick start
 
-**Consumers who only need the published SDK** (same package name as upstream when published from this fork):
+**Official Supabase releases from npm** (maintained by Supabase, not this repo):
 
 ```bash
 npm install @supabase/supabase-js
+```
+
+**This fork from a git checkout** (path or git URL in `package.json`—see npm/yarn docs for `dependencies` on a monorepo subfolder):
+
+```bash
+npm install -g "/absolute/path/to/securesupabase-js/packages/core/supabase-js"
 ```
 
 **Global CLI from a local checkout** (typical when iterating on the fork):
